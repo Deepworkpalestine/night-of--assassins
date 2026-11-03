@@ -30,6 +30,26 @@ jobs:
           mkdir app
           unzip -q night-of-assassins-github-upload.zip -d app
 
+      - name: Fix Arabic strings
+        working-directory: app
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("lib/screens/learn_screen.dart")
+          s = p.read_text(encoding="utf-8")
+
+          start = s.index("          const Text(\n            '•")
+          end = s.index("            style: TextStyle(color: Colors.white70", start)
+
+          replacement = """          const Text(
+            '• المواطنون الصالحون: يفوزون عند طرد جميع أعضاء المافيا.\\n'
+            '• فريق المافيا (المغتالون): يفوزون إذا تساوى عددهم مع عدد بقية اللاعبين الأحياء.\\n'
+            '• الأدوار المستقلة (المهرج والمراهن): يلعبون لمصلحتهم الشخصية ولهم شروط فوز مستقلة.',
+"""
+          p.write_text(s[:start] + replacement + s[end:], encoding="utf-8")
+          PY
+
       - name: Build APK
         working-directory: app
         run: |
